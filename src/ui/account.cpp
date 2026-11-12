@@ -123,11 +123,11 @@ public:
                 g_gfx.text(x + 28, y, col::text2, 0.64f,
                            str_printf("Waiting for you to approve VivoTube " G_DOT " code expires in %d:%02d", left / 60,
                                       left % 60));
-                y += 40;
+                y += 36;
                 y += g_gfx.paragraph(x, y, tw, col::text2, 0.62f,
-                                     "If Google warns that it hasn't verified this app, choose Advanced, then "
-                                     "Go to \xE2\x80\xA6 (unsafe).",
-                                     2) + 10;
+                                     "If Google says it hasn't verified this app, choose Continue. If it says the "
+                                     "app is blocked, use your own Google client instead (see the README on GitHub).",
+                                     3) + 8;
                 g_gfx.paragraph(x, y, tw, col::text3, 0.58f,
                                 "By signing in, you agree to the YouTube Terms of Service and VivoTube's privacy "
                                 "policy: hamburger101.github.io/VivoTube/privacy.html",

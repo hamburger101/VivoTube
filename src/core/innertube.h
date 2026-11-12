@@ -54,10 +54,6 @@ public:
     ChannelPage channel(const std::string& channelId, ChannelTab tab, const std::string& continuation);
     PlaylistPage playlist(const std::string& playlistId, const std::string& continuation);
     Page topicFeed(const std::string& channelId);
-    // The Home feed ("" continuation = first page). With the account's OAuth token YouTube may
-    // personalise it; *personal says whether it did (it ignores or refuses tokens from apps it
-    // doesn't recognise, and signed out the feed is empty).
-    Page home(const std::string& bearer, const std::string& continuation, bool* personal);
     PlayerInfo player(const std::string& videoId);
     WatchInfo next(const std::string& videoId);
     WatchInfo relatedMore(const std::string& continuation);

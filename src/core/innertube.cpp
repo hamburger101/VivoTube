@@ -284,23 +284,6 @@ Page InnerTube::topicFeed(const std::string& channelId) {
     return p;
 }
 
-Page InnerTube::home(const std::string& bearer, const std::string& continuation, bool* personal) {
-    std::string err;
-    std::string extra = continuation.empty() ? std::string("{\"browseId\":\"FEwhat_to_watch\"}")
-                                             : "{\"continuation\":" + json_string(continuation) + "}";
-    std::vector<std::string> headers;
-    if (!bearer.empty()) headers.push_back("Authorization: Bearer " + bearer);
-    JDocPtr d = call("browse", "browse", extra, &err, headers);
-    Page p;
-    bool loggedOut = true;
-    if (d) p = parse_home_feed(*d, &loggedOut);
-    if (!err.empty()) p.error = err;
-    if (personal) *personal = d && !loggedOut && !p.items.empty();
-    VT_LOG("innertube: home %s, %u videos, %s", bearer.empty() ? "signed out" : "with token", (unsigned)p.items.size(),
-           loggedOut ? "not personalised" : "personalised");
-    return p;
-}
-
 PlayerInfo InnerTube::player(const std::string& videoId) {
     std::string err;
     std::string extra = "{\"videoId\":" + json_string(videoId) + ",\"contentCheckOk\":true,\"racyCheckOk\":true}";

@@ -30,26 +30,6 @@ std::string subs_key() {
 
 uint32_t g_shuffleSeed = 0x9E3779B9u;
 
-// Whether YouTube personalises its Home feed for the account's token: -1 not tried yet this
-// session, 0 no (VivoTube builds "For you" itself), 1 yes.
-int g_youtubeHome = -1;
-
-struct HomeFetch {
-    Page page;
-    bool personal = false;
-};
-
-HomeFetch youtube_home(const std::string& continuation) {
-    HomeFetch r;
-    std::string token, err;
-    if (!g_app->account.accessToken(token, &err)) {
-        r.page.error = err;
-        return r;
-    }
-    r.page = g_app->yt.home(token, continuation, &r.personal);
-    return r;
-}
-
 std::vector<Item> shuffled(std::vector<Item> v) {
     g_shuffleSeed ^= (uint32_t)(monotonic_seconds() * 1000.0);
     for (size_t i = v.size(); i > 1; i--) {
@@ -149,7 +129,6 @@ public:
             // Signed in or out: the personal parts of Home change.
             likedLoaded_ = false;
             accountLiked_.clear();
-            g_youtubeHome = -1;
             loadAll(true);
         }
         refreshAllState();
@@ -285,23 +264,6 @@ private:
         fySecond_ = 0;
         fyEmpty_ = 0;
         fySeeds_.clear();
-        personalBusy_ = true;
-        if (g_app->account.signedIn() && g_youtubeHome != 0) {
-            // YouTube's own recommendations, if it accepts the token (tried once per session).
-            mode_ = Mode::YouTube;
-            async<HomeFetch>([] { return youtube_home(""); }, [this, gen](HomeFetch& r) {
-                if (gen != feeds_[0].gen) return;
-                if (r.personal) {
-                    g_youtubeHome = 1;
-                    personalBusy_ = false;
-                    feeds_[0].append(r.page);
-                    return;
-                }
-                if (!starts_with(r.page.error, "network error")) g_youtubeHome = 0;
-                startForYou(gen);
-            });
-            return;
-        }
         startForYou(gen);
     }
 
@@ -401,24 +363,7 @@ private:
     }
 
     void loadMorePersonal() {
-        Feed& f = feeds_[0];
-        uint32_t gen = f.gen;
-        if (mode_ == Mode::ForYou) {
-            loadForYouPage(gen);
-            return;
-        }
-        std::string cont = f.continuation;
-        personalBusy_ = true;
-        async<HomeFetch>([cont] { return youtube_home(cont); }, [this, gen](HomeFetch& r) {
-            Feed& fi = feeds_[0];
-            if (gen != fi.gen) return;
-            personalBusy_ = false;
-            if (!r.page.error.empty()) {
-                fi.continuation.clear();
-                return;
-            }
-            fi.append(r.page);
-        });
+        if (mode_ == Mode::ForYou) loadForYouPage(feeds_[0].gen);
     }
 
     // The Shorts shelf on "All": popular Shorts from the Shorts search filter.
@@ -560,9 +505,9 @@ private:
     int subsPending_ = 0, subsFailed_ = 0;
     std::string loadedSubs_;
 
-    // What "All" shows: the mix of subscriptions and topics (nothing personal to go on), YouTube's
-    // own recommendations for the account, or VivoTube's "For you" built from history and likes.
-    enum class Mode { Mix, YouTube, ForYou };
+    // What "All" shows: the mix of subscriptions and topics (nothing personal to go on), or
+    // VivoTube's "For you" built from history and likes.
+    enum class Mode { Mix, ForYou };
     Mode mode_ = Mode::Mix;
     bool personalBusy_ = false;
     int fyPage_ = 0, fyRot_ = 0, fyEmpty_ = 0;

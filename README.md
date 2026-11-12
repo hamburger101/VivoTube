@@ -102,13 +102,15 @@ Google. See the [privacy policy](https://hamburger101.github.io/VivoTube/privacy
 
 1. In VivoTube, choose **Sign in** (top right). The app shows a code.
 2. On your phone or PC, open [google.com/device](https://www.google.com/device), enter the code
-   and sign in with your Google account.
-3. Google hasn't verified VivoTube, so it shows a warning first: choose **Advanced**, then
-   **Go to … (unsafe)**, and allow access.
+   and sign in with your Google account, then allow access.
 
-Google limits apps it hasn't verified to 100 accounts in total, and all VivoTube users share one
-daily Data API quota. If the built-in sign-in stops working because of either, you can use your
-own OAuth client instead.
+**The built-in sign-in is waiting for Google's verification.** Until Google approves it, only
+accounts added as testers can use it; Google shows everyone else "This app is blocked". Until
+then, use your own OAuth client (below). It takes about ten minutes to set up.
+
+All VivoTube users share one daily Data API quota on the built-in client. If it runs out, you stay
+signed in, but syncing subscriptions, likes and playlists pauses until the quota resets the next
+day. Your own client avoids that too.
 
 ### Using your own OAuth client
 
@@ -130,8 +132,7 @@ A `google_client.json` on the memory card takes the place of the built-in client
 
 ### "For you"
 
-YouTube only personalises its own Home feed for its own apps, and it turns away tokens from a
-client like this one (VivoTube still tries once per session, in case that changes). So VivoTube
+YouTube only personalises its own Home feed for its own apps, so VivoTube
 builds the feed itself from what it knows about you: videos related to what you recently watched
 and liked (your YouTube likes when signed in, plus the history and likes on the memory card),
 with new uploads from your subscriptions mixed in. Videos you finished or disliked are left out.
